@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>区块链投票</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+  </style>
+  <!-- Custom styles for this template -->
+  <link href="css/form-validation.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+  <div class="container">
+    <div class="py-5 text-center">
+      <img src="images/title.png" alt="" width="" height="">
+      <h2>投票项目初始化</h2>
+    </div>
+
+    <div class="row">
+      <form id="pform" class="needs-validation" novalidate>
+        <div class="mb-3">
+          <label for="project_name">投票系统名称：</label><span id="p_name"><i class="error"></i></span>
+          <input type="text" class="form-control" id="project_name" placeholder="项目名称"
+            onkeyup="checkLabel(this,/^\S*$/,'p_name')" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="select1_name">选项1: </label><span id="s1_name"><i class="error"></i></span>
+          <input type="text" class="form-control" id="select1_name" placeholder="请输入选项1"
+            onkeyup="checkLabel(this,/^\S*$/,'s1_name')" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="select2_name">选项2: </label><span id="s2_name"><i class="error"></i></span>
+          <input type="text" class="form-control" id="select2_name" placeholder="请输入选项2"
+            onkeyup="checkLabel(this,/^\S*$/,'s2_name')">
+        </div>
+
+        <div class="mb-3">
+          <label for="select3_name">选项3: </label><span id="s3_name"><i class="error"></i></span>
+          <input type="text" class="form-control" id="select3_name" placeholder="请输入选项3"
+            onkeyup="checkLabel(this,/^\S*$/,'s3_name')">
+        </div>
+      </form>
+      <button class="btn" style="font-weight: bolder;width:10%;" onclick="add()">+</button><button class="btn"
+        style="font-weight: bolder;width:10%;" onclick="minus()">-</button>
+      <hr class="mb-4">
+      <button class="btn btn-primary btn-lg btn-block" type="submit">保存</button>
+    </div>
+  </div>
+
+
+  <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="js/web3.min.js"></script>
+  <script src="js/truffle-contract.js"></script>
+  <script src="js/project.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script>
+    var num = 3;
+
+    $('#pform').onsubmit = () => {
+      var sinput = document.getElementsByTagName("input");
+      for (var i = 1; i <= num; i++) {
+        if (!checkLabel(sinput[i].id))
+          return false;
+      }
+      return true;
+    }
+    function add() {
+      num++;
+      var fList = document.getElementById("pform");
+      var divObj = document.createElement('div');
+      var labelObj = document.createElement('label');
+      var spanObj = document.createElement('span');
+      var iObj = document.createElement('i');
+      var inputObj = document.createElement('input');
+      divObj.setAttribute("class", "mb-3");
+      labelObj.setAttribute("for", "select" + num + "_name");
+      labelObj.innerHTML = "选项" + num;
+      spanObj.setAttribute("id", "s" + num + "_name");
+      iObj.setAttribute("class", "error");
+      inputObj.setAttribute("type", "text");
+      inputObj.setAttribute("class", "form-control");
+      inputObj.setAttribute("id", "select" + num + "_name");
+      inputObj.setAttribute("placeholder", "请输入选项" + num);
+      inputObj.setAttribute("onkeyup", "checkLabel(this,/^\\S*$/,\'s" + num + "_name\')");
+      spanObj.appendChild(iObj);
+      divObj.appendChild(labelObj);
+      divObj.appendChild(spanObj);
+      divObj.appendChild(inputObj);
+      fList.appendChild(divObj);
+    }
+    function minus() {
+      if (num == 2) {
+        alert("必须至少有两个选项");
+        return;
+      }
+      var labelObj = document.getElementById("select" + num + "_name");
+      labelObj.parentNode.parentNode.removeChild(labelObj.parentNode);
+      num--;
+    }
+  </script>
+</body>
+
+</html>
+
+<style>
+  .test-center {
+    text-align: center;
+  }
+
+  table {
+    width: 50%;
+  }
+
+  table tr {
+    border-bottom: 2px solid #efefef;
+    height: 40px;
+  }
+</style>

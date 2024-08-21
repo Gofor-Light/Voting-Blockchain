@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"><!--指定网页的兼容性模式-->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>区块链投票</title>
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+  <!-- for pkcs5pkey -->
+  <script src="components/googlecode/core.js"></script>
+  <script src="components/googlecode/cipher-core.js"></script>
+  <script src="components/googlecode/md5.js"></script>
+  <script src="components/googlecode/tripledes.js"></script>
+  <script src="components/googlecode/enc-base64.js"></script>
+  <!-- for crypto -->
+  <script src="components/googlecode/sha1.js"></script>
+  <script src="components/googlecode/sha256.js"></script>
+  <!-- for crypto, asn1, asn1x509 -->
+  <script src="components/yahoo/yahoo-min.js"></script>
+
+  <script language="JavaScript" type="text/javascript" src="ext/jsbn.js"></script>
+  <script language="JavaScript" type="text/javascript" src="ext/jsbn2.js"></script>
+  <script language="JavaScript" type="text/javascript" src="ext/prng4.js"></script>
+  <script language="JavaScript" type="text/javascript" src="ext/rng.js"></script>
+  <script language="JavaScript" type="text/javascript" src="ext/rsa.js"></script>
+  <script language="JavaScript" type="text/javascript" src="ext/rsa2.js"></script>
+  <script language="JavaScript" type="text/javascript" src="ext/base64.js"></script>
+  <script language="JavaScript" type="text/javascript" src="asn1hex-1.1.js"></script>
+  <script language="JavaScript" type="text/javascript" src="rsapem-1.1.js"></script>
+  <script language="JavaScript" type="text/javascript" src="rsasign-1.2.js"></script>
+  <script language="JavaScript" type="text/javascript" src="x509-1.1.js"></script>
+  <script language="JavaScript" type="text/javascript" src="pkcs5pkey-1.0.js"></script>
+  <script language="JavaScript" type="text/javascript" src="asn1-1.0.js"></script>
+  <script language="JavaScript" type="text/javascript" src="asn1x509-1.0.js"></script>
+  <script language="JavaScript" type="text/javascript" src="components/sm2/crypto-1.1.js"></script>
+  <script language="JavaScript" type="text/javascript" src="ext/ec.js"></script>
+  <script language="JavaScript" type="text/javascript" src="ext/ec-patch.js"></script>
+  <script language="JavaScript" type="text/javascript" src="ecdsa-modified-1.0.js"></script>
+  <script language="JavaScript" type="text/javascript" src="components/sm2/sm3.js"></script>
+  <script language="JavaScript" type="text/javascript" src="components/sm2/sm3-sm2-1.0.js"></script>
+  <script language="JavaScript" type="text/javascript" src="components/sm2/ecparam-1.0.js"></script>
+  <script language="JavaScript" type="text/javascript" src="components/sm2/sm2.js"></script>
+  <script language="JavaScript" type="text/javascript">
+    function doCrypt() {
+      var f1 = document.getElementById('voteform');
+
+      var curve = f1.curve1.value;
+      var msg = f1.msg.value;
+      var msgData = CryptoJS.enc.Utf8.parse(msg);
+
+      var pubkeyHex = f1.pubkey1.value;
+      if (pubkeyHex.length > 64 * 2) {
+        pubkeyHex = pubkeyHex.substr(pubkeyHex.length - 64 * 2);
+      }
+
+      var xHex = pubkeyHex.substr(0, 64);
+      var yHex = pubkeyHex.substr(64);
+
+      var cipherMode = f1.cipherMode.value;
+
+      var cipher = new SM2Cipher(cipherMode);
+      var userKey = cipher.CreatePoint(xHex, yHex);
+
+      msgData = cipher.GetWords(msgData.toString());
+
+      var encryptData = cipher.Encrypt(userKey, msgData);
+      f1.sigval1.value = encryptData;
+    }
+  </script>
+  <style>
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+
+    .test-center {
+      text-align: center;
+    }
+
+    table {
+      width: 50%;
+    }
+
+    table tr {
+      border-bottom: 2px solid #efefef;
+      height: 40px;
+    }
+
+    label {
+      margin-right: 5%;
+    }
+  </style>
+  <link href="css/form-validation.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+  <div class="container">
+    <div class="py-5 text-center">
+      <img src="images/title.png" alt="" width="" height="">
+      <h2 id="projectName"> </h2>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>选项</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <input id="r1" type="radio" name="option1" class="form-check-input" checked>
+              <label for="" class="form-check-lable">请选择投票</label>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    需要先注册才能进行投票哦，点击<a href="login.html">这里</a>进行注册！
+
+    <hr class="mb-4">
+
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <form id="voteform">
+          <div class="mb-3">
+            <label for="note">请按以下步骤进行投票：</label><br>
+            <label>1、系统生成的公钥</label><br />
+            椭圆曲线加密名称:
+            <select name="curve1" id="curve1">
+              <option value="sm2">SM2
+            </select>
+            <br>
+            公钥 (十六进制): <input type="text" class="form-control" name="pubkey1" id="pubkey1" readonly/>
+          </div>
+          <hr class="mb-4">
+
+          <label for="sig">2、加密选票</label><br>
+          加密方式:
+          <select id="cipherMode" name="cipherMode">
+            <option value="1" selected="selected">C1C3C2
+          </select><br />
+          <div class="mb-3">
+            需要加密的选票内容:<span id="voteSpan"><i class="error"></i></span>
+            <input type="text" name="msg" id="voteName" class="form-control" readonly />
+            <input type="button" style="border-style: none;" value="加密选票" onClick="doCrypt();"
+              onmouseover="this.style.backgroundColor='#c0c0c0';" onmouseout="this.style.backgroundColor='#efefef';" />
+          </div>
+          <hr class="mb-4">
+          <label for="data">3、加密后的选票 (十六进制)</label><br>
+          <p>
+            <input type="text" id="sigval1" class="form-control" name="sigval1" readonly/>
+          </p>
+        </form>
+        <hr class="mb-4">
+          <input id="votesub" class="btn btn-primary btn-lg btn-block" type="submit" value="投票" />
+      </section>
+    </div>
+  </div>
+
+  <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+  <script src="js/web3.min.js"></script>
+  <script src="js/truffle-contract.js"></script>
+  <script src="js/vote.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script>
+    function votext(obj) {
+      var vote0 = document.getElementById('voteName');
+      var text0 = obj.parentElement.getElementsByClassName('form-check-lable')[0];
+      vote0.value = text0.innerHTML;
+    }
+  </script>
+</body>
+
+</html>
